@@ -1,0 +1,22 @@
+DROP SCHEMA IF EXISTS public CASCADE;
+CREATE SCHEMA public;
+GRANT ALL ON SCHEMA public TO root;
+GRANT ALL ON SCHEMA public TO public;
+
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    verification_token VARCHAR(255) UNIQUE NOT NULL,
+    is_verified BOOLEAN NOT NULL DEFAULT FALSE,
+    password VARCHAR(255) NOT NULL,
+    reset_password_token VARCHAR(255) UNIQUE DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS url (
+    id SERIAL PRIMARY KEY,
+    short_value VARCHAR(255) NOT NULL,
+    original_value TEXT NOT NULL,
+    user_id INTEGER REFERENCES users(id),
+    created_at TIMESTAMP DEFAULT NOW()
+);

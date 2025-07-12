@@ -1,27 +1,34 @@
-use axum::{
-    Router
-};
 use dotenv::dotenv;
-use std::fs;
+use sqlx::PgPool;
+use std::{fs};
 
 mod db;
 mod routes;
 mod handlers;
+mod models;
+mod errors;
 
-use crate::{db::helpers::execute::execute_db, routes::add_routes};
+#[derive(Clone)]
+pub struct AppState {
+    pub pool: PgPool
+}
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
     dotenv().ok();
 
-    let app = Router::new();
-
     let postres_connection_string = std::env::var("DATABASE_URL")
         .expect("DATABASE_URL must be provided.");
+
+    println!("{}", postres_connection_string);
+
+    println!("Creating database connection...");
 
     let pool = sqlx::postgres::PgPool::connect(postres_connection_string.as_str())
         .await
         .expect("Error while creating postgres connection.");
+
+    println!("Database connected.");
 
     let init_db = std::env::var("INIT_DB").expect("INIT_DB must be provided.").as_str() == "1";
 
@@ -29,7 +36,7 @@ async fn main() {
         let sql_file = fs::read_to_string("./db/init.sql").expect("Error while reading sql init file.");
         let splitted_sql_file = sql_file.split(";");
         for command in splitted_sql_file {
-            execute_db(command, &pool)
+            sqlx::query(command).execute(&pool)
                 .await
                 .expect(
                     format!("Error while running init sql file. Command : {}", command).as_str()
@@ -37,11 +44,13 @@ async fn main() {
         }
     }
 
-    add_routes(&app, &pool);
+    let app = routes::get_router_with_routes().with_state(AppState { pool });
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8080")
         .await
         .expect("Failed to bind listener.");
 
-    axum::serve(listener, app).await.unwrap();
+    println!("Starting the server...");
+
+    axum::serve(listener, app).await.expect("Error while serve.");
 }

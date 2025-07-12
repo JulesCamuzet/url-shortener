@@ -1,7 +1,8 @@
-use axum::Router;
+use axum::{Router, routing::post};
 
-use crate::handlers::users::{self, register::handle_register};
+use crate::{handlers::users::register::handle_register, AppState};
 
-pub fn add_routes(app: &Router, pool: &sqlx::PgPool) {
-    handle_register(app, pool);
+pub fn get_router_with_routes() -> Router<AppState> {
+    Router::new()
+        .route("/register", post(handle_register))
 }

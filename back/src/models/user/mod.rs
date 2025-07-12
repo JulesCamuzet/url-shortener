@@ -1,3 +1,7 @@
+use serde::Serialize;
+use sqlx::prelude::FromRow;
+
+#[derive(FromRow, Serialize)]
 pub struct User {
     pub id: i32,
     pub email: String,
@@ -7,5 +11,3 @@ pub struct User {
     pub reset_password_token: Option<String>,
     pub created_at: String
 }
-
-pub fn test() {1}

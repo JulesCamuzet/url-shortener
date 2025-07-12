@@ -7,6 +7,8 @@ mod routes;
 mod handlers;
 mod models;
 mod errors;
+mod modules;
+mod helpers;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -33,6 +35,7 @@ async fn main() {
     let init_db = std::env::var("INIT_DB").expect("INIT_DB must be provided.").as_str() == "1";
 
     if init_db {
+        println!("Initializing database...");
         let sql_file = fs::read_to_string("./db/init.sql").expect("Error while reading sql init file.");
         let splitted_sql_file = sql_file.split(";");
         for command in splitted_sql_file {
@@ -42,6 +45,7 @@ async fn main() {
                     format!("Error while running init sql file. Command : {}", command).as_str()
                 );
         }
+        println!("Database initialized.")
     }
 
     let app = routes::get_router_with_routes().with_state(AppState { pool });

@@ -17,6 +17,6 @@ CREATE TABLE IF NOT EXISTS url (
     id SERIAL PRIMARY KEY,
     short_value VARCHAR(255) NOT NULL,
     original_value TEXT NOT NULL,
-    user_id INTEGER REFERENCES users(id),
+    user_id INTEGER REFERENCES users(id) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT NOW()
 );

@@ -1,7 +1,7 @@
-use serde::Serialize;
 use sqlx::prelude::FromRow;
+use time::PrimitiveDateTime;
 
-#[derive(FromRow, Serialize)]
+#[derive(FromRow)]
 pub struct User {
     pub id: i32,
     pub email: String,
@@ -9,5 +9,5 @@ pub struct User {
     pub is_verified: bool,
     pub password: String,
     pub reset_password_token: Option<String>,
-    pub created_at: String
+    pub created_at: PrimitiveDateTime
 }

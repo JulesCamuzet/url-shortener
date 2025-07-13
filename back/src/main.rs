@@ -12,7 +12,8 @@ mod helpers;
 
 #[derive(Clone)]
 pub struct AppState {
-    pub pool: PgPool
+    pub pool: PgPool,
+    pub private_key: String
 }
 
 #[tokio::main(flavor = "current_thread")]
@@ -48,7 +49,9 @@ async fn main() {
         println!("Database initialized.")
     }
 
-    let app = routes::get_router_with_routes().with_state(AppState { pool });
+    let private_key = std::env::var("PRIVATE_KEY").expect("PRIVATE_KEY must be provided.");
+
+    let app = routes::get_router_with_routes().with_state(AppState { pool, private_key });
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8080")
         .await

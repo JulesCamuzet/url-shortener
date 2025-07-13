@@ -10,14 +10,14 @@ pub struct HandlerError {
 }
 
 #[derive(Serialize)]
-struct ResponseBody {
+struct ErrorResponseBody {
     code: String,
     message: String
 }
 
 impl IntoResponse for HandlerError {
     fn into_response(self) -> Response {
-        let response_body = Json(ResponseBody {
+        let response_body = Json(ErrorResponseBody {
             code: self.code,
             message: self.message
         });

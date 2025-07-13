@@ -17,7 +17,10 @@ pub struct Output {
     id: i32
 }
 
-pub async fn handle_register(State(state): State<AppState>, payload: Result<Json<Payload>, JsonRejection>) -> Result<Json<Output>, HandlerError> {
+pub async fn handle_register(
+    State(state): State<AppState>,
+    payload: Result<Json<Payload>, JsonRejection>
+) -> Result<Json<Output>, HandlerError> {
     let payload = match payload {
         Err(rejection) => return Err(get_handler_error_from_json_rejection(rejection)),
         Ok(Json(payload)) => payload

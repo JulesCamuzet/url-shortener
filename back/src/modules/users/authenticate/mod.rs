@@ -48,7 +48,7 @@ pub async fn authenticate_user(
     }
 
     let jwt = match get_jwt(Claim { email: user.email }, private_key) {
-        Err(e) => return Err(AuthenticateUserError::Unknown),
+        Err(_) => return Err(AuthenticateUserError::Unknown),
         Ok(token) => token
     };
 

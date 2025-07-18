@@ -1,3 +1,4 @@
+use axum::Router;
 use dotenv::dotenv;
 use sqlx::PgPool;
 use std::{fs};
@@ -9,6 +10,7 @@ mod models;
 mod errors;
 mod modules;
 mod helpers;
+mod middlewares;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -51,7 +53,14 @@ async fn main() {
 
     let private_key = std::env::var("PRIVATE_KEY").expect("PRIVATE_KEY must be provided.");
 
-    let app = routes::get_router_with_routes().with_state(AppState { pool, private_key });
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .init();
+    
+    let app = Router::new()
+        .merge(routes::get_router_with_routes())
+        .layer(tower_http::trace::TraceLayer::new_for_http())
+        .with_state(AppState { pool, private_key });
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8080")
         .await

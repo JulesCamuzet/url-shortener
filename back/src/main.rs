@@ -10,6 +10,7 @@ mod models;
 mod errors;
 mod modules;
 mod helpers;
+mod middlewares;
 
 #[derive(Clone)]
 pub struct AppState {

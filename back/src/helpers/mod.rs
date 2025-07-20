@@ -3,3 +3,4 @@ pub mod generate;
 pub mod hash;
 pub mod jwt;
 pub mod tracing;
+pub mod cookies;

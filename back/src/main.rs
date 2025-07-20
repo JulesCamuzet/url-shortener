@@ -1,5 +1,6 @@
+use axum::Router;
 use dotenv::dotenv;
-use sqlx::PgPool;
+use sqlx::{postgres::PgConnectOptions, ConnectOptions, PgPool};
 use std::{fs};
 
 mod db;
@@ -22,12 +23,15 @@ async fn main() {
 
     let postres_connection_string = std::env::var("DATABASE_URL")
         .expect("DATABASE_URL must be provided.");
-
-    println!("{}", postres_connection_string);
-
+    let postgres_connection_str = postres_connection_string.as_str();
+    
     println!("Creating database connection...");
-
-    let pool = sqlx::postgres::PgPool::connect(postres_connection_string.as_str())
+        
+    let mut db_opts: PgConnectOptions = postgres_connection_str.parse()
+        .expect("Error while parsing pg connection string.");
+    db_opts = db_opts.log_statements(tracing::log::LevelFilter::Debug);
+    
+    let pool = sqlx::postgres::PgPool::connect_with(db_opts)
         .await
         .expect("Error while creating postgres connection.");
 
@@ -50,8 +54,13 @@ async fn main() {
     }
 
     let private_key = std::env::var("PRIVATE_KEY").expect("PRIVATE_KEY must be provided.");
-
-    let app = routes::get_router_with_routes().with_state(AppState { pool, private_key });
+    
+    helpers::tracing::setup_http_tracing();
+    
+    let app = Router::new()
+        .merge(routes::get_router_with_routes())
+        .layer(tower_http::trace::TraceLayer::new_for_http())
+        .with_state(AppState { pool, private_key });
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8080")
         .await

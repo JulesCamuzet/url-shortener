@@ -41,3 +41,5 @@ Thumbs.db
 *.exe
 *.dll
 *.class
+
+/back/logs/*

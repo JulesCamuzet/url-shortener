@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use serde::{Deserialize, Serialize};
 use jsonwebtoken::{
     decode,
@@ -6,14 +8,14 @@ use jsonwebtoken::{
     DecodingKey,
     EncodingKey,
     Header,
-    TokenData,
     Validation
 };
 
 // TODO should maybe find a better place to declare the Claim struct
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Claim {
-    pub email: String
+    pub email: String,
+    pub exp: i64
 }
 
 pub fn get_jwt(claim: Claim, private_key: String) -> Result<String, Error> {
@@ -23,9 +25,9 @@ pub fn get_jwt(claim: Claim, private_key: String) -> Result<String, Error> {
     return token;
 }
 
-pub fn verify_jwt(token: &str, private_key: String) -> Result<TokenData<Claim>, Error> {
+pub fn verify_jwt(token: &str, private_key: String) -> Result<Claim, Error> {
     let decoding_key = DecodingKey::from_secret(private_key.as_bytes());
     let validation = Validation::new(jsonwebtoken::Algorithm::HS256);
-    let result = decode::<Claim>(&token, &decoding_key, &validation);
-    return result;
+    let result = decode::<Claim>(&token, &decoding_key, &validation)?;
+    Ok(result.claims)
 }

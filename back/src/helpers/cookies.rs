@@ -14,10 +14,13 @@ pub fn get_cookie(headers: &HeaderMap, cookie_name: &str) -> Option<String> {
     let splitted_cookies = str_cookies.split(';');
     
     for cookie in splitted_cookies {
-        let cookie_parts: Vec<&str> = cookie.split("=").collect();
-       
-        if cookie_parts.len() >= 2 && cookie_parts[0] == cookie_name {
-            return Some(cookie_parts[1].to_string());
+        let cookie_parts: Vec<&str> = cookie
+            .split("=")
+            .map(|item| item.trim())
+            .collect();
+
+        if cookie_parts.len() >= 2 && cookie_parts[0].trim() == cookie_name {
+            return Some(cookie_parts[1].trim().to_string());
         }
     }
     

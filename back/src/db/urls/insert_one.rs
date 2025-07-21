@@ -10,7 +10,9 @@ pub struct InsertOneUrlInput<'a> {
 
 #[derive(Serialize, FromRow)]
 pub struct Output {
-    id: i32
+    pub id: i32,
+    pub original_value: String,
+    pub short_value: String
 }
 
 pub async fn insert_one_url<'a>(InsertOneUrlInput {
@@ -20,11 +22,11 @@ pub async fn insert_one_url<'a>(InsertOneUrlInput {
         pool
     }: InsertOneUrlInput<'a>
 ) -> Result<Output, Error> {
-    let query = sqlx::query_as::<_, Output>("INSERT INTO urls (
+    let query = sqlx::query_as::<_, Output>("INSERT INTO url (
             short_value,
             original_value,
             user_id
-        ) VALUES ($1, $2, $3) RETURNING id"
+        ) VALUES ($1, $2, $3) RETURNING id, original_value, short_value"
     ).bind(short_value.as_str())
     .bind(original_value.as_str())
     .bind(user_id);
@@ -34,9 +36,9 @@ pub async fn insert_one_url<'a>(InsertOneUrlInput {
     match result {
         Err(e) => {
             eprintln!("Error while inserting a url.
-                short_value : {}\n
-                original_value : {}\n
-                user_id : {:#?}\n
+                short_value : {}
+                original_value : {}
+                user_id : {:#?}
                 Error: {}",
                 short_value, original_value, user_id, e);
             Err(e)

@@ -1,7 +1,7 @@
 use sqlx::prelude::FromRow;
 use time::PrimitiveDateTime;
 
-#[derive(FromRow)]
+#[derive(FromRow, Debug)]
 pub struct User {
     pub id: i32,
     pub email: String,

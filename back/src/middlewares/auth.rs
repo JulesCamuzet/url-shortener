@@ -1,9 +1,17 @@
 use axum::http::{HeaderMap, StatusCode};
 use sqlx::PgPool;
 
-use crate::{db::users::get_one_by_email::get_one_user_by_email, errors::HandlerError, helpers::{cookies::get_cookie, jwt::verify_jwt}, models::user::User};
+use crate::{
+    db::users::get_one_by_email::get_one_user_by_email,
+    errors::HandlerError,
+    helpers::{cookies::get_cookie, jwt::verify_jwt},
+    models::user::User
+};
 
-pub async fn check_auth(headers: &HeaderMap, pool: &PgPool) -> Result<User, HandlerError> {
+pub async fn check_auth(
+    headers: &HeaderMap,
+    pool: &PgPool
+) -> Result<User, HandlerError> {
     let auth_handler_error = HandlerError {
         status: StatusCode::UNAUTHORIZED,
         message: "Authentication error.".to_string(),
@@ -19,17 +27,17 @@ pub async fn check_auth(headers: &HeaderMap, pool: &PgPool) -> Result<User, Hand
         None => return Err(auth_handler_error),
         Some(token) => token
     };
-    
-    let claim = match verify_jwt(&token, private_key) {
+        
+    let claims = match verify_jwt(&token, private_key) {
         Err(_) => return Err(auth_handler_error),
-        Ok(data) => data.claims
+        Ok(claims) => claims
     };
     
-    let get_user_result = match get_one_user_by_email(&claim.email, pool).await {
+    let get_user_result = match get_one_user_by_email(&claims.email, pool).await {
         Err(_) => return Err(auth_handler_error),
         Ok(result) => result
     };
-    
+        
     let user = match get_user_result {
         None => return Err(auth_handler_error),
         Some(user) => user

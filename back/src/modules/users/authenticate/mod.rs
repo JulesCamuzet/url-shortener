@@ -8,7 +8,8 @@ pub struct AuthenticateUserInput {
     pub email: String,
     pub password: String,
     pub private_key: String,
-    pub pool: PgPool
+    pub pool: PgPool,
+    pub exp: i64
 }
 
 pub struct AuthenticateUserOutput {
@@ -25,7 +26,8 @@ pub async fn authenticate_user(
         email,
         password,
         private_key,
-        pool
+        pool,
+        exp
     }: AuthenticateUserInput
 ) -> Result<AuthenticateUserOutput, AuthenticateUserError> {
     let get_user_result = match get_one_user_by_email(email.as_str(), &pool).await {
@@ -47,7 +49,7 @@ pub async fn authenticate_user(
         return Err(AuthenticateUserError::InvalidCredentials);
     }
 
-    let jwt = match get_jwt(Claim { email: user.email }, private_key) {
+    let jwt = match get_jwt(Claim { email: user.email, exp }, private_key) {
         Err(_) => return Err(AuthenticateUserError::Unknown),
         Ok(token) => token
     };

@@ -3,7 +3,9 @@ use sqlx::{PgPool};
 use crate::{
     db::users::{get_one_by_email::get_one_user_by_email, insert_one::{insert_one_user, InsertOneUserInput}},
     helpers::{check_format::{check_email_format, check_password_format},
-    generate::generate_random_string, hash::hash_password}
+    generate::{generate_random_string, GenerateRandomStringOptions},
+    hash::hash_password
+    }
 };
 
 pub struct CreateUserInput {
@@ -49,7 +51,11 @@ pub async fn create_user(CreateUserInput { email, password, pool }: CreateUserIn
         Err(_) => return Err(CreateUserError::Unknown)
     }
 
-    let verification_token = generate_random_string(16);
+    let verification_token = generate_random_string(16, GenerateRandomStringOptions {
+        include_uppercases: true,
+        include_specials: false,
+        include_numbers: true
+    });
 
     let hashed_password = match hash_password(password) {
         Ok(hashed_password) => hashed_password,

@@ -35,12 +35,15 @@ pub async fn handle_login(
         Err(rejection) => return Err(get_handler_error_from_json_rejection(rejection)),
         Ok(Json(payload)) => payload,
     };
+    
+    let cookie_expiration_date = chrono::offset::Local::now() + Duration::minutes(30);
 
     let authentication_result = authenticate_user(AuthenticateUserInput {
         email: payload.email,
         password: payload.password,
         pool: state.pool,
         private_key: state.private_key,
+        exp: cookie_expiration_date.timestamp()
     })
     .await;
 
@@ -64,7 +67,6 @@ pub async fn handle_login(
         },
     };
 
-    let cookie_expiration_date = chrono::offset::Local::now() + Duration::minutes(30);
     let cookie_expiration_string = cookie_expiration_date.to_rfc2822();
 
     let headers = AppendHeaders([(

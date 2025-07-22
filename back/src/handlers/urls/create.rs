@@ -60,6 +60,11 @@ pub async fn handle_create_url(
                 code: "UNKNOWN".to_string(),
                 message: "An unknown error has occured.".to_string(),
                 status: StatusCode::INTERNAL_SERVER_ERROR
+            }),
+            CreateUrlError::WrongFormat => Err(HandlerError {
+                code: "WRONG_FORMAT".to_string(),
+                message: "The format of the url is wrong.".to_string(),
+                status: StatusCode::BAD_REQUEST
             })
         },
     }

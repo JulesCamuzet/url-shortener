@@ -20,3 +20,7 @@ pub fn check_password_format(val: &str) -> bool {
 
     !has_whitespace && has_upper && has_lower && has_digit && val.len() >= 8
 }
+
+pub fn check_url_format(val: &str) -> bool {
+    return val.starts_with("http://") || val.starts_with("https://")
+}

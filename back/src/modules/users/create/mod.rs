@@ -42,6 +42,7 @@ pub async fn create_user(CreateUserInput { email, password, pool }: CreateUserIn
     }
 
     match get_one_user_by_email(email.as_str(), &pool).await {
+        // TODO add 'maybe_' prefix to variables that are Options
         Ok(result) => {
             match result {
                 Some(_) => return Err(CreateUserError::EmailAlreadyExists),

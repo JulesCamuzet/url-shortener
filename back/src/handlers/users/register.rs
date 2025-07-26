@@ -1,16 +1,12 @@
 use axum::{extract::{rejection::JsonRejection, State}, http::StatusCode, Json};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 
 use crate::{
+    dtos::user::CreateUserDto,
     errors::{json_rejection::get_handler_error_from_json_rejection, HandlerError},
-    modules::users::create::{create_user, CreateUserError, CreateUserInput}, AppState
+    modules::users::create::{create_user, CreateUserError},
+    AppState
 };
-
-#[derive(Deserialize)]
-pub struct Payload {
-    pub email: String,
-    pub password: String
-}
 
 #[derive(Serialize)]
 pub struct Output {
@@ -19,18 +15,14 @@ pub struct Output {
 
 pub async fn handle_register(
     State(state): State<AppState>,
-    payload: Result<Json<Payload>, JsonRejection>
+    payload: Result<Json<CreateUserDto>, JsonRejection>
 ) -> Result<Json<Output>, HandlerError> {
-    let payload = match payload {
+    let create_user_dto = match payload {
         Err(rejection) => return Err(get_handler_error_from_json_rejection(rejection)),
         Ok(Json(payload)) => payload
     };
 
-    match create_user(CreateUserInput {
-        email: payload.email,
-        password: payload.password,
-        pool: state.pool
-    }).await {
+    match create_user(create_user_dto, state.pool).await {
         Ok(output) => Ok(Json(Output { id: output.id })),
         Err(e) => match e {
             CreateUserError::EmailAlreadyExists => Err(HandlerError {

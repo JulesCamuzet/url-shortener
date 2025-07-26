@@ -15,8 +15,16 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS url (
     id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
     short_value VARCHAR(255) NOT NULL,
-    original_value TEXT NOT NULL,
     user_id INTEGER REFERENCES users(id) DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS redirection (
+    id SERIAL PRIMARY KEY,
+    link TEXT NOT NULL,
+    probability_score BIGINT NOT NULL,
+    url_id INTEGER REFERENCES url(id) NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()
 );

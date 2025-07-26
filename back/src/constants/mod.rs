@@ -1,0 +1,1 @@
+pub const MAX_PROBABILITY_SCORE: i64 = 1000000;

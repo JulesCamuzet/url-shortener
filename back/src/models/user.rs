@@ -2,7 +2,7 @@ use sqlx::prelude::FromRow;
 use time::PrimitiveDateTime;
 
 #[derive(FromRow, Debug)]
-pub struct User {
+pub struct UserDb {
     pub id: i32,
     pub email: String,
     pub verification_token: String,
@@ -10,4 +10,10 @@ pub struct User {
     pub password: String,
     pub reset_password_token: Option<String>,
     pub created_at: PrimitiveDateTime
+}
+
+pub struct CreateUserDb {
+    pub email: String,
+    pub verification_token: String,
+    pub password: String
 }

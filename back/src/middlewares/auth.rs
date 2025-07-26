@@ -5,13 +5,13 @@ use crate::{
     db::users::get_one_by_email::get_one_user_by_email,
     errors::HandlerError,
     helpers::{cookies::get_cookie, jwt::verify_jwt},
-    models::user::User
+    models::user::UserDb
 };
 
 pub async fn check_auth(
     headers: &HeaderMap,
     pool: &PgPool
-) -> Result<User, HandlerError> {
+) -> Result<UserDb, HandlerError> {
     let auth_handler_error = HandlerError {
         status: StatusCode::UNAUTHORIZED,
         message: "Authentication error.".to_string(),

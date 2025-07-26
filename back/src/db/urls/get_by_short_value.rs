@@ -1,6 +1,6 @@
 use sqlx::{Error, PgPool};
 
-use crate::models::url::Url;
+use crate::models::url::UrlDb;
 
 pub struct GetUrlByShortValueInput<'a> {
     pub short_value: String,
@@ -10,8 +10,8 @@ pub struct GetUrlByShortValueInput<'a> {
 pub async fn get_url_by_short_value<'a>(GetUrlByShortValueInput {
     short_value,
     pool
-}: GetUrlByShortValueInput<'a>) -> Result<Option<Url>, Error> {
-    let query = sqlx::query_as::<_, Url>(
+}: GetUrlByShortValueInput<'a>) -> Result<Option<UrlDb>, Error> {
+    let query = sqlx::query_as::<_, UrlDb>(
         "SELECT
             id,
             short_value,

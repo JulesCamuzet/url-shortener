@@ -1,18 +1,15 @@
 use sqlx::{PgPool};
 
 use crate::{
-    db::users::{get_one_by_email::get_one_user_by_email, insert_one::{insert_one_user, InsertOneUserInput}},
-    helpers::{check_format::{check_email_format, check_password_format},
-    generate::{generate_random_string, GenerateRandomStringOptions},
-    hash::hash_password
-    }
+    db::users::{get_one_by_email::get_one_user_by_email, insert_one::{insert_one_user}},
+    dtos::{user::CreateUserDto},
+    helpers::{
+        check_format::{check_email_format, check_password_format},
+        generate::{generate_random_string, GenerateRandomStringOptions},
+        hash::hash_password
+    },
+    models::user::CreateUserDb
 };
-
-pub struct CreateUserInput {
-    pub email: String,
-    pub password: String,
-    pub pool: PgPool
-}
 
 pub struct CreateUserOutput {
     pub id: i32
@@ -25,7 +22,9 @@ pub enum CreateUserError {
     Unknown
 }
 
-pub async fn create_user(CreateUserInput { email, password, pool }: CreateUserInput) -> Result<CreateUserOutput, CreateUserError> {
+pub async fn create_user(CreateUserDto {
+    email, password
+}: CreateUserDto, pool: PgPool) -> Result<CreateUserOutput, CreateUserError> {
     match check_email_format(email.as_str()) {
         Ok(is_valid) => {
             if !is_valid {
@@ -63,12 +62,14 @@ pub async fn create_user(CreateUserInput { email, password, pool }: CreateUserIn
         Err(_) => return Err(CreateUserError::Unknown)
     };
 
-    let result = match insert_one_user(InsertOneUserInput {
-        email,
-        password: hashed_password,
-        verification_token,
-        pool: &pool
-    }).await {
+    let result = match insert_one_user(
+        CreateUserDb {
+            email,
+            password: hashed_password,
+            verification_token: verification_token
+        },
+        &pool
+    ).await {
         Ok(output) => output,
         Err(_) => return Err(CreateUserError::Unknown)
     };
